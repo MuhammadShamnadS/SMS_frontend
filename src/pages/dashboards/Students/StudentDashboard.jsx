@@ -1,72 +1,48 @@
 import React, { useEffect, useState } from "react";
-import axios from "../../../api/axios";
 import {
-  Typography,
   Container,
+  Typography,
   CircularProgress,
   Alert,
-  Grid,
-  Card,
-  CardContent,
   Avatar,
   Box,
-  Paper,
+  Card,
+  CardContent,
+  Stack,
+  Divider,
+  useTheme,
 } from "@mui/material";
-import SchoolIcon from "@mui/icons-material/School";
-import GroupIcon from "@mui/icons-material/Group";
-import AssignmentIcon from "@mui/icons-material/Assignment";
+import {
+  Email as EmailIcon,
+  Phone as PhoneIcon,
+  Class as ClassIcon,
+  AssignmentInd as AssignmentIndIcon,
+  Person as PersonIcon,
+  Badge as BadgeIcon,
+} from "@mui/icons-material";
+import axios from "../../../api/axios";
 
-// Helper for fetching paginated Laravel API
-const fetchPaginated = async (url) => {
-  let allItems = [];
-  let nextUrl = url;
-
-  while (nextUrl) {
-    const res = await axios.get(nextUrl);
-    const { data, next_page_url } = res.data;
-    allItems = [...allItems, ...data];
-    nextUrl = next_page_url;
-  }
-
-  return allItems;
-};
-
-const StatCard = ({ icon, title, value, gradient }) => (
-  <Card
-    sx={{
-      p: 3,
-      background: gradient,
-      borderRadius: 3,
-      color: "white",
-      boxShadow: 3,
-      transition: "transform 0.3s ease",
-      "&:hover": { transform: "scale(1.03)" },
-    }}
-  >
-    <Box display="flex" alignItems="center" gap={2}>
-      <Box>{icon}</Box>
-      <Box>
-        <Typography variant="subtitle2">{title}</Typography>
-        <Typography variant="h4" fontWeight="bold">
-          {value}
-        </Typography>
-      </Box>
-    </Box>
-  </Card>
+// InfoRow.jsx
+const InfoRow = ({ label, icon: Icon }) => (
+  <Box display="flex" alignItems="center" gap={1}>
+    {Icon && <Icon />}
+    <Typography>{label}</Typography>
+  </Box>
 );
 
+
+
 const StudentDashboard = () => {
-  const [student, setStudents] = useState([]);
+  const theme = useTheme();
+  const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch student details 
-        const studentRes = await axios.get("/my-details");
-        const studentData = studentRes.data;
-        setStudents(studentData);
+        const res = await axios.get("/my-details");
+        setStudent(res.data);
       } catch (err) {
         console.error(err);
         setError("Failed to load dashboard data");
@@ -80,50 +56,96 @@ const StudentDashboard = () => {
 
   if (loading) return <CircularProgress sx={{ mt: 10 }} />;
   if (error) return <Alert severity="error">{error}</Alert>;
+  if (!student) return null;
 
+  const fullName = `${student?.user?.first_name || ""} ${student?.user?.last_name || ""}`.trim();
+  const teacher = student?.assigned_teacher;
 
   return (
-    <Container sx={{ mt: 5, mb: 6 }}>
+    <Container maxWidth="md" sx={{ mt: 5, mb: 6 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Welcome, {student?.user?.first_name} {student?.user?.last_name}
+        Welcome, {fullName || "Student"}
       </Typography>
 
-      {/* Student Profile */}
-      <Paper
-        elevation={4}
+      {/* Student Info Card */}
+      <Card
         sx={{
-          display: "flex",
-          alignItems: "center",
+          mb: 5,
           p: 3,
-          mb: 4,
-          borderRadius: 3,
-          background: "linear-gradient(to right, #2196f3, #6ec6ff)",
+          borderRadius: 4,
+          background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.secondary.light})`,
+          boxShadow: 6,
           color: "white",
         }}
       >
-        <Avatar
+        <Box display="flex" alignItems="center" gap={3}>
+          <Avatar sx={{ width: 72, height: 72, bgcolor: "white", color: "black", fontWeight: 700 }}>
+            {student?.user?.first_name?.[0]?.toUpperCase() || "S"}
+          </Avatar>
+          <Box>
+            <Typography variant="h6">{fullName}</Typography>
+            <Stack spacing={1} mt={1}>
+              <InfoRow icon={EmailIcon} label={student?.user?.email} />
+              <InfoRow icon={PhoneIcon} label={student?.phone} />
+              <InfoRow icon={BadgeIcon} label={`Roll No: ${student?.roll_number}`} />
+              <InfoRow icon={ClassIcon} label={`Class: ${student?.student_class}`} />
+              <InfoRow icon={AssignmentIndIcon} label={`Admission Date: ${student?.admission_date}`} />
+              <InfoRow icon={PersonIcon} label={`Username: ${student?.user?.username}`} />
+            </Stack>
+          </Box>
+        </Box>
+      </Card>
+
+      {/* Teacher Info Card */}
+      {teacher ? (
+        <Card
           sx={{
-            width: 64,
-            height: 64,
-            mr: 2,
-            bgcolor: "white",
-            color: "primary.main",
-            fontWeight: 700,
+            p: 3,
+            borderRadius: 4,
+            background: `linear-gradient(135deg, #f3f4f6, #e2e8f0)`,
+            boxShadow: 4,
           }}
         >
-        </Avatar>
-        <Box>
-          <Typography variant="h6">
-            {student?.user?.first_name} {student?.user?.last_name}
-          </Typography>
-          <Typography variant ="body2">User name: {student?.user?.username || "N/A"}</Typography>
-          <Typography variant="body2">Roll no: {student?.roll_number || "N/A"}</Typography>
-          <Typography variant="body2">Email: {student?.user?.email}</Typography>
-          <Typography variant="body2">Phone: {student?.phone}</Typography>
-          <Typography variant="body2">Class: {student?.student_class}</Typography>
-          <Typography variant="body2">Joined: {student?.admission_date}</Typography>
-        </Box>
-      </Paper>
+<Box display="flex" alignItems="center" gap={3}>
+  <Avatar
+    sx={{
+      width: 72,
+      height: 72,
+      bgcolor: "black",
+      color: "white",
+      fontWeight: 700,
+    }}
+  >
+    {teacher?.user?.first_name?.[0]?.toUpperCase() || "T"}
+  </Avatar>
+
+  <Box>
+    {/* Card Title */}
+    <Typography variant="h6" fontWeight={600}>
+      My Assigned Teacher
+    </Typography>
+
+    {/* Teacher Info */}
+    <Stack spacing={1} mt={1}>
+      <InfoRow
+        label={`Name: ${teacher?.user?.first_name || ""} ${teacher?.user?.last_name || ""}`}
+      />
+      <InfoRow icon={EmailIcon} label={teacher?.user?.email} />
+      <InfoRow icon={PhoneIcon} label={teacher?.phone} />
+      <InfoRow icon={ClassIcon} label={`Subject: ${teacher?.subject_specialization}`} />
+      <InfoRow icon={AssignmentIndIcon} label={`Joined: ${teacher?.date_of_joining}`} />
+      <InfoRow icon={BadgeIcon} label={`Status: ${teacher?.status}`} />
+      <InfoRow icon={PersonIcon} label={`Username: ${teacher?.user?.username}`} />
+    </Stack>
+  </Box>
+</Box>
+
+        </Card>
+      ) : (
+        <Alert severity="info" sx={{ mt: 3 }}>
+          No assigned teacher yet.
+        </Alert>
+      )}
     </Container>
   );
 };

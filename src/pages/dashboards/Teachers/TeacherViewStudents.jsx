@@ -29,7 +29,7 @@ const MyStudents = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
-  const [count, setCount] = useState(0); // total pages
+  const [count, setCount] = useState(0); 
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
@@ -97,7 +97,7 @@ const MyStudents = () => {
               ) : (
                 students.map((student) => (
                   <TableRow key={student.id} hover>
-                    <TableCell>{`${student.user.first_name} ${student.user.last_name}`}</TableCell>
+                    <TableCell>{`${student.user.first_name} ${student.user.last_name ?? ''}`}</TableCell>
                     <TableCell>{student.student_class}</TableCell>
                     <TableCell>{student.roll_number}</TableCell>
                     <TableCell align="center">
@@ -126,11 +126,14 @@ const MyStudents = () => {
         <DialogContent dividers>
           {selectedStudent && (
             <Box>
+              <Typography variant="body1"><strong>Username:</strong> {selectedStudent.user.username}</Typography>
               <Typography variant="body1"><strong>Name:</strong> {selectedStudent.user.first_name} {selectedStudent.user.last_name}</Typography>
               <Typography variant="body1"><strong>Email:</strong> {selectedStudent.user.email}</Typography>
-              <Typography variant="body1"><strong>Username:</strong> {selectedStudent.user.username}</Typography>
               <Typography variant="body1"><strong>Roll Number:</strong> {selectedStudent.roll_number}</Typography>
               <Typography variant="body1"><strong>Class:</strong> {selectedStudent.student_class}</Typography>
+              <Typography variant="body1"><strong>Phone no:</strong> {selectedStudent.phone}</Typography>
+              <Typography variant="body1"><strong>DOB:</strong> {selectedStudent.date_of_birth}</Typography>
+              <Typography variant="body1"><strong>Addmission Date:</strong> {selectedStudent.admission_date}</Typography>
             </Box>
           )}
         </DialogContent>
