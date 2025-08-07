@@ -24,6 +24,8 @@ const StudentRegisterForm = () => {
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
   const [teachers, setTeachers] = useState([]);
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 
   const {
     register,
@@ -134,19 +136,61 @@ useEffect(() => {
         )}
         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-        {/* 🔹 Student Registration Form */}
+        {/*Student Registration Form */}
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 1 }}>
-          <TextField fullWidth label="Username" margin="normal" {...register("username", { required: "Username is required"})} error={!!errors.username} helperText={errors.username?.message} />
-          <TextField fullWidth label="Email" margin="normal" {...register("email", { required: "Email is required" })} error={!!errors.email} helperText={errors.email?.message} />
-          <TextField fullWidth label="First Name" margin="normal" {...register("first_name", { required: "First name is required" })} error={!!errors.first_name} helperText={errors.first_name?.message} />
-          <TextField fullWidth label="Last Name" margin="normal" {...register("last_name")} error={!!errors.last_name} helperText={errors.last_name?.message} />
-          <TextField fullWidth label="Password" type="password" margin="normal" {...register("password", { required: "Password is required" })} error={!!errors.password} helperText={errors.password?.message} />
-          <TextField fullWidth label="Phone" margin="normal" {...register("phone", { required: "Phone is required" })} error={!!errors.phone} helperText={errors.phone?.message} />
-          <TextField fullWidth label="Roll No" margin="normal" {...register("roll_number", { required: "Roll number is required" })} error={!!errors.roll_number} helperText={errors.roll_number?.message} />
+
+        
+        <TextField fullWidth label="Username" margin="normal"{...register("username", 
+        {
+            required: "Username is required",
+            minLength: { value: 3, message: "Username must be at least 3 characters",},
+            maxLength: {value: 255, message: "Username must be at most 255 characters",},
+            pattern: {value: /^[a-zA-Z0-9_]+$/, message: "Username can only contain letters, numbers, and underscores",},
+          })}error={!!errors.username} helperText={errors.username?.message}/>       
+
+
+        <TextField fullWidth label="Email" margin="normal" {...register("email", 
+          { 
+            required: "Email is required",
+            pattern: { value: emailRegex, message: "Invalid Email format",},
+          })} error={!!errors.email} helperText={errors.email?.message} />
+
+          <TextField fullWidth label="First Name" margin="normal" {...register("first_name", 
+            { 
+              required: "First name is required",
+              minLength: { value: 2, message: "First name must be minimum 2 characters"},
+              maxLength: { value: 255, message: "First name must be atmost 255 characters" },
+              pattern: { value: /^[A-Za-z ]+$/, message: "Name only contains alphabets"}
+             })} error={!!errors.first_name} helperText={errors.first_name?.message} />
+
+          <TextField fullWidth label="Last Name" margin="normal" {...register("last_name",
+          {
+            pattern: { value: /^[A-Za-z ]+$/, message: "Name only contains alphabets"}
+          })} error={!!errors.last_name} helperText={errors.last_name?.message} />
+
+          <TextField fullWidth label="Password" type="password" margin="normal" {...register("password", 
+          { 
+            required: "Password is required",
+            minLength: { value: 6, message:"Password must contains 6 characters"}
+          })} error={!!errors.password} helperText={errors.password?.message} />
+
+            <TextField fullWidth label="Phone" margin="normal" {...register("phone", 
+            { 
+              required: "Phone is required",
+              pattern: { value: /^[0-9]{10}$/, message: "Phone number must be exactly 10 digits"},
+            })} error={!!errors.phone} helperText={errors.phone?.message} />
+
+          <TextField fullWidth label="Roll No" margin="normal" {...register("roll_number", 
+            { 
+              required: "Roll number is required" ,
+                  minLength: { value: 1, message: "Please enter a roll number",},
+                  pattern: { value: /^[0-9]+$/, message: "Roll number only contains digits"}
+            })} error={!!errors.roll_number} helperText={errors.roll_number?.message} />
+
           <TextField fullWidth type="date" label="Date of Birth" InputLabelProps={{ shrink: true }} margin="normal" {...register("date_of_birth", { required: "Date of birth is required" })} error={!!errors.date_of_birth} helperText={errors.date_of_birth?.message} />
           <TextField fullWidth type="date" label="Admission Date" InputLabelProps={{ shrink: true }} margin="normal" {...register("admission_date", { required: "Admission date is required" })} error={!!errors.admission_date} helperText={errors.admission_date?.message} />
 
-          {/* 🔹 Class Dropdown */}
+          {/*Class Dropdown */}
           <FormControl fullWidth margin="normal" error={!!errors.student_class}>
             <InputLabel>Class</InputLabel>
             <Select defaultValue="" {...register("student_class", { required: "Class is required" })}>
@@ -157,7 +201,7 @@ useEffect(() => {
             {errors.student_class && <p style={{ color: "red", marginTop: 4 }}>{errors.student_class.message}</p>}
           </FormControl>
 
-          {/* 🔹 Status Dropdown */}
+          {/*Status Dropdown */}
           <FormControl fullWidth margin="normal" error={!!errors.status}>
             <InputLabel>Status</InputLabel>
             <Select defaultValue="active" {...register("status", { required: "Status is required" })}>
@@ -167,7 +211,7 @@ useEffect(() => {
             {errors.status && <p style={{ color: "red", marginTop: 4 }}>{errors.status.message}</p>}
           </FormControl>
 
-          {/* 🔹 Assign Teacher Dropdown */}
+          {/*Assign Teacher Dropdown */}
           <FormControl fullWidth margin="normal" error={!!errors.assigned_teacher_id}>
             <InputLabel>Assign Teacher</InputLabel>
             <Select defaultValue="" {...register("assigned_teacher_id")}>
@@ -181,7 +225,7 @@ useEffect(() => {
             {errors.assigned_teacher_id && <p style={{ color: "red", marginTop: 4 }}>{errors.assigned_teacher_id.message}</p>}
           </FormControl>
 
-          {/* 🔹 Submit */}
+          {/* Submit */}
           <Button
             type="submit"
             variant="contained"
