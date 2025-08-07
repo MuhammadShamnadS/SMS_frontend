@@ -6,12 +6,7 @@ import PublicLayout from "../layouts/PublicLayout";
 import ProtectedLayout from "../layouts/ProtectedLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
 import RequireAuth from "../components/RequireAuth";
-
 import LoginPage from "../pages/LoginPage";
-import ForgotPasswordPage from "../pages/dashboards/Password/ForgetPasswordpage";
-import ResetPasswordPage from "../pages/dashboards/Password/ResetPasswordPage";
-
-
 import DashboardRouter from "../pages/dashboards/DashboardRouter";
 import StudentRegisterForm from "../pages/dashboards/Admin/RegisterStudentForm";
 import TeacherRegisterForm from "../pages/dashboards/Admin/RegisterTeacherForm";
@@ -25,20 +20,12 @@ import StudentsUnderTeacher from "../pages/dashboards/Admin/StudentUnderTeacher"
 import MyStudents from "../pages/dashboards/Teachers/TeacherViewStudents";
 
 
-
-
-
-
-
 const routes = [
   {
     element: <PublicLayout />,
     children: [
       { path: "/", element: <LoginPage /> },
       { path: "/login", element: <LoginPage /> },
-      { path: "/forgot-password", element: <ForgotPasswordPage /> },
-      { path: "/reset-password", element: <ResetPasswordPage /> },
-      { path: "/register", element: <Navigate to="/dashboard/register" replace /> }, 
     ],
   },
   {
