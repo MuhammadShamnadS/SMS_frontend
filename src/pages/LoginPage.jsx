@@ -39,25 +39,26 @@ const LoginPage = () => {
   };
 
   return (
-    <Grid container sx={{ height: "100vh", width: "100vw", m: 0 }}>
+    <Grid container sx={{ height: "95vh", width: "100vw", m: 0 }}>
 
       <Grid
         item
         xs={12}
         md={6}
         sx={{
+          
           background: "linear-gradient(to right, #1976d2, #42a5f5)",
           color: "#fff",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
-          px: { xs: 3, sm: 5, md: 8 },
+          px: { xs: 3, sm: 4, md: 8 },
           py: 4,
           textAlign: "center",
         }}
       >
-        <Box sx={{ maxWidth: 400, mx: 8}}>
+        <Box sx={{maxWidth: 400, mx: 8}}>
         <Typography variant="h3" fontWeight="bold" gutterBottom>
           School Management
         </Typography>
@@ -70,14 +71,14 @@ const LoginPage = () => {
 
       <Grid
         item
-        xs={12}
+        xs={10}
         md={6}
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          px: { xs: 3, sm: 5, md: 8 },
-          py: 4,
+          px: { xs: 2, sm: 5, md: 8 },
+          py: 1,
           bgcolor: "#fff",
         }}
       >
@@ -119,19 +120,19 @@ const LoginPage = () => {
               fullWidth
               variant="contained"
               disabled={loading}
-              sx={{ mt: 3 }}
+                sx={{
+                marginTop: '10px',
+                borderRadius:'100px',
+                background:"#444444",
+                color: "white",
+                "&:hover": { backgroundColor: "#444444d8" },
+                fontWeight: 600,
+              }}
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
             </Button>
 
-            <Typography
-              variant="body2"
-              align="center"
-              sx={{ mt: 2, cursor: "pointer", color: "primary.main" }}
-              onClick={() => navigate("/forgot-password")}
-            >
-              Forgot password?
-            </Typography>
+
           </Box>
         </Paper>
       </Grid>

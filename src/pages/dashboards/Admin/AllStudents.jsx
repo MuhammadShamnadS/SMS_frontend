@@ -43,8 +43,7 @@ import {
 } from "@mui/icons-material";
 import SchoolIcon from "@mui/icons-material/School";
 import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
-import DownloadIcon from "@mui/icons-material/Download";
-
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 const AllStudents = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +52,7 @@ const AllStudents = () => {
   const [count, setCount] = useState(1);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState(null);
-  const [selectedStudent, setSelectedStudent] = useState(null); // For modal
+  const [selectedStudent, setSelectedStudent] = useState(null); 
 
   const theme = useTheme();
   const isMobile = theme.breakpoints.down("sm");
@@ -96,13 +95,20 @@ useEffect(() => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
       {/* Header */}
-      <Box display="flex" gap={2} p={2} mb={3} justifyContent="space-between" borderRadius={3} boxShadow={3} >
-          <Typography variant="h4" fontWeight="bold" display="flex" alignItems="center" gap={1}>
-            <SchoolIcon color="primary" /> All Students
+      <Box display="flex" bgcolor="#444444" gap={3} p={2} mb={3} justifyContent="space-between" borderRadius={3} boxShadow={3}>
+          <Typography variant="h4" color="white" fontWeight="bold" display="flex" alignItems="center" gap={1}>
+            <SchoolIcon color="white" /> All Students
           </Typography>
 
-          <Stack direction="row" spacing={2}>
-            <Button variant="contained" startIcon={<PersonAddAltIcon />} onClick={() => navigate("/dashboard/register/student")}>
+          <Stack direction="row"  spacing={2}>
+            <Button  variant="text" color="black"  startIcon={<PersonAddAltIcon />} onClick={() => navigate("/dashboard/register/student")}
+            sx={{
+               
+                color: "rgba(255, 255, 255, 1)",
+                borderRadius:"100px",
+                "&:hover": { backgroundColor: "#00000054" },
+                fontWeight: 600,}}
+                >
               Register Student
             </Button>
           </Stack>
@@ -116,15 +122,16 @@ useEffect(() => {
             <CircularProgress/>
             </Box>
         ) : (
+          
           <Table size={isMobile ? "small" : "medium"}>
             <TableHead>
-              <TableRow sx={{ backgroundColor: "#f9f9f9" }}>
-                <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Class</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Roll No.</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
+              <TableRow sx={{ backgroundColor: "#444444" }}>
+                <TableCell sx={{ fontWeight: "bold" ,color:"white"}}>Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" ,color:"white"}}>Email</TableCell>
+                <TableCell sx={{ fontWeight: "bold" ,color:"white"}}>Class</TableCell>
+                <TableCell sx={{ fontWeight: "bold" ,color:"white"}}>Roll No.</TableCell>
+                <TableCell sx={{ fontWeight: "bold" ,color:"white"}}>Status</TableCell>
+                <TableCell sx={{ fontWeight: "bold" ,color:"white"}} align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -145,17 +152,29 @@ useEffect(() => {
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
                         <Tooltip title="View Details">
-                          <IconButton size="small" color="info" onClick={() => setSelectedStudent(student)}>
+                          <IconButton size="small" color="info" onClick={() => setSelectedStudent(student)} 
+                          sx={{
+                borderRadius:"100px",
+                "&:hover": { backgroundColor: "#00000054" },
+                fontWeight: 600,}}>
                             <Visibility fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Edit">
-                          <IconButton size="small" color="secondary" component={Link} to={`/dashboard/students/${student.id}/edit`}>
+                          <IconButton size="small" color="secondary" component={Link} to={`/dashboard/students/${student.id}/edit`}
+                          sx={{
+                borderRadius:"100px",
+                "&:hover": { backgroundColor: "#00000054" },
+                fontWeight: 600,}}>
                             <Edit fontSize="small" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Delete">
-                          <IconButton size="small" color="error" onClick={() => handleDelete(student.id)} disabled={deletingId === student.id}>
+                          <IconButton size="small" color="error" onClick={() => handleDelete(student.id)} disabled={deletingId === student.id}
+                            sx={{
+                borderRadius:"100px",
+                "&:hover": { backgroundColor: "#00000054" },
+                fontWeight: 600,}}>
                             <Delete fontSize="small" />
                           </IconButton>
                         </Tooltip>
@@ -177,26 +196,32 @@ useEffect(() => {
       )}
 
       {/* Student Details Modal */}
+     
       {selectedStudent && (
         <Dialog open onClose={() => setSelectedStudent(null)} fullWidth maxWidth="sm">
-          <DialogTitle fontWeight="bold">Student Profile</DialogTitle>
+          <Box display="flex" flexDirection="row" justifyContent="space-between" p={2} height="60px">
+        <Typography variant="h6" fontWeight="bold">Student Profile</Typography>
+            <IconButton onClick={() => setSelectedStudent(null)}sx={{ color:"black",
+                borderRadius:"10px",
+                "&:hover": { backgroundColor: "#00000054" },
+                fontWeight: 60,}} >
+              <CloseOutlinedIcon />
+            </IconButton>
+          </Box>
           <DialogContent dividers>
             <Box display="grid" gridTemplateColumns="1fr" gap={1.5}>
-              <Divider />
-              <Box display="flex" alignItems="center" gap={1}><AccountCircle color="primary" /><Typography variant="body1" fontWeight="medium">{selectedStudent.user.first_name} {selectedStudent.user.last_name}</Typography></Box>
-              <Box display="flex" alignItems="center" gap={1}><Email color="action" /><Typography variant="body2">{selectedStudent.user.email}</Typography></Box>
-              <Box display="flex" alignItems="center" gap={1}><Phone color="action" /><Typography variant="body2">{selectedStudent.phone}</Typography></Box>
+              {/* <Divider /> */}
+              <Box display="flex" alignItems="center" gap={1}><AccountCircle color="primary" /><Typography variant="body2" fontWeight="medium">Full name : {selectedStudent.user.first_name} {selectedStudent.user.last_name}</Typography></Box>
+              <Box display="flex" alignItems="center" gap={1}><Email color="action" /><Typography variant="body2">Email : {selectedStudent.user.email}</Typography></Box>
+              <Box display="flex" alignItems="center" gap={1}><Phone color="action" /><Typography variant="body2">Phone no : {selectedStudent.phone}</Typography></Box>
               <Box display="flex" alignItems="center" gap={1}><Class color="action" /><Typography variant="body2">Class: {selectedStudent.student_class}</Typography></Box>
               <Box display="flex" alignItems="center" gap={1}><Badge color="action" /><Typography variant="body2">Roll No: {selectedStudent.roll_number}</Typography></Box>
-              <Box display="flex" alignItems="center" gap={1}><Chip label={selectedStudent.status} color={selectedStudent.status === "active" ? "success" : "default"} size="small" /></Box>
-              <Divider />
               <Box display="flex" alignItems="center" gap={1}><Cake fontSize="small" /><Typography variant="body2">DOB: {selectedStudent.date_of_birth}</Typography></Box>
               <Box display="flex" alignItems="center" gap={1}><CalendarMonth fontSize="small" /><Typography variant="body2">Admission Date: {selectedStudent.admission_date}</Typography></Box>
+              <Box display="flex" alignItems="center" gap={1}>Status : <Chip label={selectedStudent.status} color={selectedStudent.status === "active" ? "success" : "default"} size="small" /></Box>
+             <Divider />
             </Box>
           </DialogContent>
-          <Box display="flex" justifyContent="flex-end" p={2}>
-            <Button variant="outlined" onClick={() => setSelectedStudent(null)}>Close</Button>
-          </Box>
         </Dialog>
       )}
     </Container>

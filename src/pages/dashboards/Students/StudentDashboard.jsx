@@ -21,6 +21,7 @@ import {
   Badge as BadgeIcon,
 } from "@mui/icons-material";
 import axios from "../../../api/axios";
+import ChatWindow from "../Students/ChatWindow"
 
 // InfoRow.jsx
 const InfoRow = ({ label, icon: Icon }) => (
@@ -73,13 +74,13 @@ const StudentDashboard = () => {
           mb: 5,
           p: 3,
           borderRadius: 4,
-          background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.secondary.light})`,
+          background: `linear-gradient(135deg, #f3f4f6, #e2e8f0)`,
           boxShadow: 6,
-          color: "white",
+          color: "black",
         }}
       >
         <Box display="flex" alignItems="center" gap={3}>
-          <Avatar sx={{ width: 72, height: 72, bgcolor: "white", color: "black", fontWeight: 700 }}>
+          <Avatar sx={{ width: 72, height: 72, bgcolor: "black", color: "white", fontWeight: 700 }}>
             {student?.user?.first_name?.[0]?.toUpperCase() || "S"}
           </Avatar>
           <Box>

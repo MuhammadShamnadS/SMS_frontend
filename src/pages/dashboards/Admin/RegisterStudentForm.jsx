@@ -100,7 +100,7 @@ useEffect(() => {
         {/* 🔹 Header Bar */}
         <Box
           sx={{
-            background: "linear-gradient(to right, #1976d2, #42a5f5)",
+            background: "#444444",
             borderRadius: 2,
             p: 2,
             mb: 3,
@@ -115,11 +115,12 @@ useEffect(() => {
             <Button
               startIcon={<ArrowBackIcon />}
               onClick={() => navigate("/dashboard/students")}
-              variant="outlined"
+              variant="text"
               sx={{
-                backgroundColor: "#fff",
-                color: "#1976d2",
-                "&:hover": { backgroundColor: "#e3f2fd" },
+               
+                color: "rgba(255, 255, 255, 1)",
+                borderRadius:"100px",
+                "&:hover": { backgroundColor: "#00000054" },
                 fontWeight: 600,
               }}
             >
@@ -128,7 +129,7 @@ useEffect(() => {
           </Stack>
         </Box>
 
-        {/* 🔹 Alerts */}
+        {/* Alerts */}
         {formError && (
           <Alert severity="error" sx={{ mb: 2, whiteSpace: "pre-line" }}>
             {formError}
@@ -158,8 +159,9 @@ useEffect(() => {
           <TextField fullWidth label="First Name" margin="normal" {...register("first_name", 
             { 
               required: "First name is required",
+              
               minLength: { value: 2, message: "First name must be minimum 2 characters"},
-              maxLength: { value: 255, message: "First name must be atmost 255 characters" },
+              maxLength: { value: 100, message: "First name must be atmost 100 characters" },
               pattern: { value: /^[A-Za-z ]+$/, message: "Name only contains alphabets"}
              })} error={!!errors.first_name} helperText={errors.first_name?.message} />
 
@@ -226,13 +228,16 @@ useEffect(() => {
           </FormControl>
 
           {/* Submit */}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{ mt: 3, p: 1.2, fontWeight: "bold" }}
-            startIcon={<SchoolIcon />}
-          >
+          <Button type="submit" variant="contained" fullWidth 
+              sx={{
+                marginTop: '10px',
+                borderRadius:'100px',
+                background:"#444444",
+                color: "white",
+                "&:hover": { backgroundColor: "#444444d8" },
+                fontWeight: 600,
+              }}
+            >
             Register Student
           </Button>
         </Box>

@@ -18,6 +18,10 @@ import TeacherDashboard from "../pages/dashboards/Teachers/TeacherDashboard";
 import StudentDashboardPage from "../pages/dashboards/Students/StudentDashboard";
 import StudentsUnderTeacher from "../pages/dashboards/Admin/StudentUnderTeacher";
 import MyStudents from "../pages/dashboards/Teachers/TeacherViewStudents";
+import ChatWindow from "../pages/dashboards/Students/ChatWindow";
+
+            
+
 
 
 const routes = [
@@ -47,9 +51,11 @@ const routes = [
 
           { path: "teacher", element: <RequireAuth allowedRoles={["teacher"]}><TeacherDashboard /></RequireAuth> },
           { path: "teachers/student", element: <RequireAuth allowedRoles={["teacher"]}><MyStudents /></RequireAuth> },
+
           
 
           { path: "student", element: <RequireAuth allowedRoles={["student"]}><StudentDashboardPage /></RequireAuth> },
+          {path: "student/chat", element: <RequireAuth allowedRoles={["student"]}><ChatWindow /></RequireAuth> },
         
         
 ],

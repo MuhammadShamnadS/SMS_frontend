@@ -6,9 +6,8 @@ import {
   Alert,
   Box,
   IconButton,
-  Grid,
   Card,
-  CardContent,
+  Button,
   Avatar,
   Divider,
   Stack,
@@ -16,27 +15,45 @@ import {
   Pagination,
   Tooltip,
   Skeleton,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  
 } from "@mui/material";
 import {
+  Visibility as Visibility,
   ArrowBack as ArrowBackIcon,
-  Email as EmailIcon,
-  Phone as PhoneIcon,
-  Class as ClassIcon,
+  Email as EmailIcon,Email,
+  Phone as PhoneIcon,Phone,
+  Class as ClassIcon,Class,
   AssignmentInd as AssignmentIndIcon,
-  Person as PersonIcon,
-  Badge as BadgeIcon,
+  Badge,
+  Cake,
+  CalendarMonth,
+  AccountCircle,
 } from "@mui/icons-material";
 import axios from "../../../api/axios";
 import { useParams, useNavigate } from "react-router-dom";
 
+
 const StudentsUnderTeacher = () => {
+  
   const { teacherId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const isMobile = theme.breakpoints.down("sm");
 
   const [students, setStudents] = useState([]);
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
   const [error, setError] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
@@ -151,68 +168,55 @@ const fetchStudents = async (pageNum = 1) => {
       {/* Students */}
       {!loading && !error && students.length > 0 && (
         <>
-          <Grid container spacing={3}>
-            {students.map((student) => (
-              <Grid item xs={12} sm={6} md={4} key={student.id}>
-                <Card
-                  sx={{
-                    borderRadius: 4,
-                    p: 2,
-                    background: theme.palette.background.paper,
-                    boxShadow: 2,
-                    transition: "0.3s",
-                    "&:hover": {
-                      boxShadow: 5,
-                      transform: "translateY(-4px)",
-                    },
-                  }}
-                >
-                  <CardContent>
-                    <Stack spacing={1}>
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <PersonIcon fontSize="small" color="primary" />
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {student.user?.first_name} {student.user?.last_name}
-                        </Typography>
-                      </Box>
-
-                      <Divider sx={{ my: 1 }} />
-
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <BadgeIcon fontSize="small" />
-                        <Typography variant="body2">
-                          Roll No: {student.roll_number}
-                        </Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <ClassIcon fontSize="small" />
-                        <Typography variant="body2">
-                          Class: {student.student_class}
-                        </Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <EmailIcon fontSize="small" />
-                        <Typography variant="body2">{student.user?.email}</Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <PhoneIcon fontSize="small" />
-                        <Typography variant="body2">{student.phone}</Typography>
-                      </Box>
-
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <AssignmentIndIcon fontSize="small" />
-                        <Typography variant="body2">Status: {student.status}</Typography>
-                      </Box>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-
+                <Paper  elevation={4} sx={{ p: 2, borderRadius: 3, overflowX: "auto", minHeight: 250 }}>
+        {
+        loading ? (
+          <Box display="flex" justifyContent="center" alignItems="center" height={150}>
+            <CircularProgress/>
+            </Box>
+        ) : (
+          <Table size={isMobile ? "small" : "medium"}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f9f9f9" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Class</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Roll No.</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {students.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">No students found.</TableCell>
+                </TableRow>
+              ) : (
+                students.map((student) => (
+                  <TableRow key={student.id} hover>
+                    <TableCell>{student.user.first_name} {student.user.last_name}</TableCell>
+                    <TableCell>{student.user.email}</TableCell>
+                    <TableCell>{student.student_class}</TableCell>
+                    <TableCell>{student.roll_number}</TableCell>
+                    <TableCell>
+                      <Chip label={student.status} color={student.status === "active" ? "success" : "default"} size="small" variant="outlined" />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Stack direction="row" spacing={1} justifyContent="center">
+                        <Tooltip title="View Details">
+                          <IconButton size="small" color="info" onClick={() => setSelectedStudent(student)}>
+                            <Visibility fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
+      </Paper>
           <Box mt={5} display="flex" justifyContent="center">
             <Pagination
               count={totalPages}
@@ -226,7 +230,31 @@ const fetchStudents = async (pageNum = 1) => {
               boundaryCount={1}
             />
           </Box>
-        </>
+     
+        {/* Student Details Modal */}
+              {selectedStudent && (
+                <Dialog open onClose={() => setSelectedStudent(null)} fullWidth maxWidth="sm">
+                  <DialogTitle fontWeight="bold">Student Profile</DialogTitle>
+                  <DialogContent dividers>
+                    <Box display="grid" gridTemplateColumns="1fr" gap={1.5}>
+                      <Divider />
+                      <Box display="flex" alignItems="center" gap={1}><AccountCircle color="primary" /><Typography variant="body1" fontWeight="medium">{selectedStudent.user.first_name} {selectedStudent.user.last_name}</Typography></Box>
+                      <Box display="flex" alignItems="center" gap={1}><Email color="action" /><Typography variant="body2">{selectedStudent.user.email}</Typography></Box>
+                      <Box display="flex" alignItems="center" gap={1}><Phone color="action" /><Typography variant="body2">{selectedStudent.phone}</Typography></Box>
+                      <Box display="flex" alignItems="center" gap={1}><Class color="action" /><Typography variant="body2">Class: {selectedStudent.student_class}</Typography></Box>
+                      <Box display="flex" alignItems="center" gap={1}><Badge color="action" /><Typography variant="body2">Roll No: {selectedStudent.roll_number}</Typography></Box>
+                      <Box display="flex" alignItems="center" gap={1}><Chip label={selectedStudent.status} color={selectedStudent.status === "active" ? "success" : "default"} size="small" /></Box>
+                      <Divider />
+                      <Box display="flex" alignItems="center" gap={1}><Cake fontSize="small" /><Typography variant="body2">DOB: {selectedStudent.date_of_birth}</Typography></Box>
+                      <Box display="flex" alignItems="center" gap={1}><CalendarMonth fontSize="small" /><Typography variant="body2">Admission Date: {selectedStudent.admission_date}</Typography></Box>
+                    </Box>
+                  </DialogContent>
+                  <Box display="flex" justifyContent="flex-end" p={2}>
+                    <Button variant="outlined" onClick={() => setSelectedStudent(null)}>Close</Button>
+                  </Box>
+                </Dialog>
+              )}
+                </>
       )}
     </Container>
   );
