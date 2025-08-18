@@ -81,7 +81,7 @@ const TeacherRegisterForm = () => {
         {/* 🔹 Header Bar */}
         <Box
           sx={{
-            background: "linear-gradient(to right, #1976d2, #42a5f5)",
+            background: "#444444",
             borderRadius: 2,
             p: 2,
             mb: 3,
@@ -91,17 +91,17 @@ const TeacherRegisterForm = () => {
             color: "#fff",
           }}
         >
-          <Typography variant="h6">Register Teacher</Typography>
+          <Typography variant="h6" >Register Teacher</Typography>
           <Stack direction="row" spacing={2}>
             
             <Button
               startIcon={<ArrowBackIcon />}
               onClick={() => navigate("/dashboard/teachers")}
-              variant="outlined"
+              variant="text"
               sx={{
-                backgroundColor: "#fff",
-                color: "#1976d2",
-                "&:hover": { backgroundColor: "#e3f2fd" },
+                borderRadius:'100px',
+                color: "white",
+                "&:hover": { backgroundColor: "#0000002f" },
                 fontWeight: 600,
               }}
             >
@@ -173,9 +173,19 @@ const TeacherRegisterForm = () => {
             </Select>
             {errors.status && <p style={{ color: "red", marginTop: 4 }}>{errors.status.message}</p>}
           </FormControl>
-          <Button type="submit" variant="contained" fullWidth sx={{ mt: 3, p: 1.2, fontWeight: "bold" }}>
-            Register Teacher
-          </Button>
+          
+             <Button type="submit" variant="contained" fullWidth 
+                 sx={{
+                   marginTop: '10px',
+                   borderRadius:'100px',
+                   background:"#444444",
+                   color: "white",
+                   "&:hover": { backgroundColor: "#444444d8" },
+                   fontWeight: 600,
+                 }}
+               >
+               Register Teacher
+             </Button>
         </Box>
       </Paper>
     </Container>

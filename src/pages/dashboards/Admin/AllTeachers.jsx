@@ -72,7 +72,7 @@ useEffect(() => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`/teachers/${id}`);
-      fetchTeachers(page, search);
+      fetchTeachers(page);
     } catch {
       alert("Failed to delete teacher");
     } 
@@ -82,77 +82,133 @@ useEffect(() => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 6 }}>
       {/* Header */}
-      <Box display="flex" justifyContent="space-between"  gap={2} p={2} mb={3} borderRadius={3} boxShadow={3} >
-          <Typography variant="h4" fontWeight="bold" display="flex" alignItems="center" gap={1}>
-            <SchoolIcon color="primary" /> All Teachers
+      <Box display="flex" justifyContent="space-between"  gap={2} p={2} mb={3} borderRadius={3} boxShadow={3} bgcolor={"#444444"}>
+          <Typography variant="h4" fontWeight="bold" display="flex" alignItems="center" gap={1} color="white">
+            <SchoolIcon color="black" /> All Teachers
           </Typography>
 
           <Stack direction="row" spacing={2}>
-            <Button variant="contained" startIcon={<PersonAddAltIcon />} onClick={() => navigate("/dashboard/register/teacher")}>
+            <Button variant="text" color="black" startIcon={<PersonAddAltIcon />} onClick={() => navigate("/dashboard/register/teacher")} sx={{
+               
+                color: "rgba(255, 255, 255, 1)",
+                borderRadius:"100px",
+                "&:hover": { backgroundColor: "#00000054" },
+                fontWeight: 600,
+              }}>
               Register Teacher
             </Button>
           </Stack>
         </Box>
 
       {/* Teachers Table */}
-      <Paper elevation={4} sx={{ p: 2, borderRadius: 3, overflowX: "auto", minHeight: 250 }}>
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height={150}>
-            <CircularProgress />
-          </Box>
+     <Paper
+  elevation={4}
+  sx={{
+    p: { xs: 1, sm: 2 }, 
+    borderRadius: 3,
+    overflowX: "auto",
+    minHeight: 250,
+  }}
+>
+  {loading ? (
+    <Box display="flex" justifyContent="center" alignItems="center" height={150}>
+      <CircularProgress />
+    </Box>
+  ) : (
+    <Table
+      size={isMobile ? "small" : "medium"}
+      sx={{
+        tableLayout: "fixed", 
+        width: "100%",
+        "& td, & th": {
+          whiteSpace: "normal",
+          overflowWrap: "anywhere", 
+          wordBreak: "break-word",
+        },
+      }}
+    >
+      <TableHead>
+        <TableRow sx={{ backgroundColor: "#444444" }}>
+          <TableCell sx={{ fontWeight: "bold", color: "white", width: "20%" }}>Name</TableCell>
+          {!isMobile && (
+            <TableCell sx={{ fontWeight: "bold", color: "white", width: "25%" }}>Email</TableCell>
+          )}
+          <TableCell sx={{ fontWeight: "bold", color: "white", width: "15%" }}>Phone</TableCell>
+          <TableCell sx={{ fontWeight: "bold", color: "white", width: "15%" }}>Subject</TableCell>
+          {!isMobile && (
+            <TableCell sx={{ fontWeight: "bold", color: "white", width: "10%" }}>Status</TableCell>
+          )}
+          <TableCell sx={{ fontWeight: "bold", color: "white", width: "15%" }} align="center">
+            Actions
+          </TableCell>
+        </TableRow>
+      </TableHead>
+
+      <TableBody>
+        {teachers.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={6} align="center">
+              No teachers found.
+            </TableCell>
+          </TableRow>
         ) : (
-          <Table size={isMobile ? "small" : "medium"}>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#f9f9f9" }}>
-                <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-                {!isMobile && <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>}
-                <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Subject</TableCell>
-                {!isMobile && <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>}
-                <TableCell sx={{ fontWeight: "bold" }} align="center">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {teachers.length === 0 ? (
-                <TableRow><TableCell colSpan={6} align="center">No teachers found.</TableCell></TableRow>
-              ) : (
-                teachers.map((teacher) => (
-                  <TableRow key={teacher.id} hover>
-                    <TableCell>{teacher.user.first_name} {teacher.user.last_name}</TableCell>
-                    {!isMobile && <TableCell>{teacher.user.email}</TableCell>}
-                    <TableCell>{teacher.phone}</TableCell>
-                    <TableCell>{teacher.subject_specialization}</TableCell>
-                    {!isMobile && (
-                      <TableCell>
-                        <Chip label={teacher.status} size="small" variant="outlined" color={teacher.status === "active" ? "success" : "default"} />
-                      </TableCell>
-                    )}
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
-                        <Tooltip title="View Students">
-                          <IconButton size="small" color="primary" component={Link} to={`/dashboard/teacher/${teacher.id}/students`}>
-                            <GroupIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Edit">
-                          <IconButton size="small" color="secondary" component={Link} to={`/dashboard/teachers/${teacher.id}/edit`}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton size="small" color="error" onClick={() => handleDelete(teacher.id)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                ))
+          teachers.map((teacher) => (
+            <TableRow key={teacher.id} hover>
+              <TableCell>{teacher.user.first_name} {teacher.user.last_name}</TableCell>
+              {!isMobile && <TableCell>{teacher.user.email}</TableCell>}
+              <TableCell>{teacher.phone}</TableCell>
+              <TableCell>{teacher.subject_specialization}</TableCell>
+              {!isMobile && (
+                <TableCell>
+                  <Chip
+                    label={teacher.status}
+                    size="small"
+                    variant="outlined"
+                    color={teacher.status === "active" ? "success" : "default"}
+                  />
+                </TableCell>
               )}
-            </TableBody>
-          </Table>
+              <TableCell align="center">
+                <Stack direction="row" spacing={1} justifyContent="center">
+                  <Tooltip title="View Students">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      component={Link}
+                      to={`/dashboard/teacher/${teacher.id}/students`}
+                    >
+                      <GroupIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Edit">
+                    <IconButton
+                      size="small"
+                      color="secondary"
+                      component={Link}
+                      to={`/dashboard/teachers/${teacher.id}/edit`}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDelete(teacher.id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              </TableCell>
+            </TableRow>
+          ))
         )}
-      </Paper>
+      </TableBody>
+    </Table>
+  )}
+</Paper>
+
 
       {/* Pagination */}
       {count > 1 && (
