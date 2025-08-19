@@ -1,19 +1,22 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   Box,
   Paper,
   Typography,
   TextField,
   IconButton,
-  CircularProgress,
+  Button,
+  Avatar,
   Divider,
+  CircularProgress,
   Alert,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "../../../api/axios";
 import makeEcho from "../../../realtime/echo";
 
-const ChatWindow = () => {
+export default function ChatWindow({ onClose }) {
   const [me, setMe] = useState(null);
   const [teacher, setTeacher] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -21,9 +24,10 @@ const ChatWindow = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
+
   const echo = useMemo(() => makeEcho(), []);
 
-  // Load student + teacher info
+  // Load student + teacher
   useEffect(() => {
     const fetchDetails = async () => {
       try {
@@ -41,7 +45,6 @@ const ChatWindow = () => {
   // Load chat history
   useEffect(() => {
     if (!teacher) return;
-
     setLoading(true);
     axios
       .get(`/messages/${teacher.user.id}`)
@@ -52,17 +55,23 @@ const ChatWindow = () => {
 
   // Subscribe to realtime
   useEffect(() => {
-    if (!me?.id) return;
+    if ( !me?.id || !teacher?.user?.id ) return;
+    const channelName = `chat.${Math.min(me.id, teacher.user.id)}.${Math.max(me.id, teacher.user.id)}`;
+    const channel = echo
+      .private(channelName)
+      .listen(".message.sent", (e) => {
+                setMessages((prev) => {
+          const exists = prev.some((msg) => msg.id === e.message.id);
+          return exists ? prev : [...prev, e.message];
+        });
 
-    const channel = echo.private(`chat.${me.id}`);
-    channel.listen(".message.sent", (e) => {
-      setMessages((prev) => [...prev, e.message]);
-    });
+      });
 
     return () => {
-      echo.leave(`chat.${me.id}`);
+      echo.leave(channelName);
+      channel.stopListening(".message.sent");
     };
-  }, [me?.id]);
+  }, [echo, me?.id, teacher?.user?.id]);
 
   // Scroll to bottom
   useEffect(() => {
@@ -70,15 +79,18 @@ const ChatWindow = () => {
   }, [messages]);
 
   // Send message
-  const handleSend = async () => {
+  const send = async () => {
     if (!input.trim() || !teacher) return;
-
     try {
-      const res = await axios.post("/messages", {
+      const { data } = await axios.post("/messages", {
         receiver_id: teacher.user.id,
         message: input.trim(),
       });
-      setMessages((prev) => [...prev, res.data]);
+      setMessages((prev) =>   {
+
+       const exists = prev.some((msg) => msg.id === data.id);
+    return exists ? prev : [...prev, data];
+      })
       setInput("");
     } catch (err) {
       console.error("Failed to send message", err.response?.data || err);
@@ -93,105 +105,173 @@ const ChatWindow = () => {
       </Box>
     );
 
+  const peerName = teacher?.user?.first_name || "Teacher";
+  const peerId = teacher?.user?.id;
+
   return (
     <Paper
-      elevation={3}
+      variant="outlined"
       sx={{
-        mt: 3,
-        borderRadius: 3,
         display: "flex",
         flexDirection: "column",
         height: "75vh",
+        borderRadius: 2,
       }}
     >
-      {/* Chat Header */}
+      {/* Header */}
       <Box
         sx={{
           p: 2,
-          bgcolor: "primary.main",
+          bgcolor: "#444444",
           color: "white",
           borderTopLeftRadius: 12,
           borderTopRightRadius: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
         }}
       >
-        <Typography variant="h6">
-          Chat with {teacher?.user?.first_name}
-        </Typography>
-      </Box>
+        <Avatar
+          sx={{
+            bgcolor: "#616161",
+            width: 40,
+            height: 40,
+            fontSize: 20,
+          }}
+        >
+          {peerName?.[0]?.toUpperCase() || "P"}
+        </Avatar>
 
-      <Divider />
+        <Box sx={{ flexGrow: 1, overflow: "hidden", minWidth: 0 }}>
+          <Typography variant="h6" noWrap sx={{ textOverflow: "ellipsis" }}>
+            {peerName}
+          </Typography>
+        </Box>
+      </Box>
 
       {/* Messages */}
       <Box
         sx={{
+          bgcolor: "#61616196",
           flex: 1,
           overflowY: "auto",
           p: 2,
           display: "flex",
           flexDirection: "column",
-          gap: 1.5,
+          gap: 1,
+          "&::-webkit-scrollbar": { width: "8px" },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#ccc",
+            borderRadius: "4px",
+          },
         }}
       >
-        {messages.map((msg) => {
-          const isMe = msg.sender_id === me.id;
+        {messages.map((m) => {
+          const isMe = m.sender_id === me.id;
+          const bgColor = isMe ? "#585858ff" : "white";
+          const textColor = isMe ? "white" : "black";
+          const initials = isMe
+            ? me.first_name?.[0]?.toUpperCase() || "M"
+            : peerName?.[0]?.toUpperCase() || "P";
+
           return (
             <Box
-              key={msg.id}
+              key={m.id}
               sx={{
                 display: "flex",
                 justifyContent: isMe ? "flex-end" : "flex-start",
+                alignItems: "flex-end",
+                gap: 1,
               }}
             >
+              {!isMe && (
+                <Avatar
+                  sx={{ bgcolor: "#535353ff", width: 32, height: 32, fontSize: 14 }}
+                >
+                  {initials}
+                </Avatar>
+              )}
+
               <Box
                 sx={{
-                  bgcolor: isMe ? "primary.main" : "grey.200",
-                  color: isMe ? "white" : "black",
+                  bgcolor: bgColor,
+                  color: textColor,
                   px: 2,
                   py: 1,
                   borderRadius: 3,
-                  maxWidth: "70%",
+                  maxWidth: "65%",
                 }}
               >
-                <Typography variant="body1">{msg.message}</Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {m.message}
+                </Typography>
                 <Typography
                   variant="caption"
                   sx={{
                     display: "block",
-                    textAlign: isMe ? "right" : "left",
+                    textAlign: "right",
                     mt: 0.5,
                     opacity: 0.7,
                   }}
                 >
-                  {new Date(msg.created_at).toLocaleTimeString([], {
+                  {new Date(m.created_at).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </Typography>
               </Box>
+
+              {isMe && (
+                <Avatar
+                  sx={{ bgcolor: "#444444", width: 32, height: 32, fontSize: 14 }}
+                >
+                  {initials}
+                </Avatar>
+              )}
             </Box>
           );
         })}
         <div ref={messagesEndRef} />
       </Box>
 
-      <Divider />
-
       {/* Input */}
-      <Box sx={{ p: 2, display: "flex", gap: 1 }}>
+      <Box sx={{ bgcolor: "#61616196", p: 2, display: "flex", gap: 1 }}>
         <TextField
           value={input}
           onChange={(e) => setInput(e.target.value)}
           fullWidth
-          placeholder="Type a message..."
+          placeholder="Type a message…"
           size="small"
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => e.key === "Enter" && send()}
+          sx={{
+            bgcolor: "#ffffffff",
+            borderRadius: "10px",
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": { border: "none" },
+              "&:hover fieldset": { border: "none" },
+              "&.Mui-focused fieldset": { border: "none" },
+            },
+          }}
         />
-        <IconButton color="primary" onClick={handleSend}>
+        <IconButton
+          sx={{
+            borderRadius: "10px",
+            backgroundColor: "#444444",
+            color: "white",
+            "&:hover": { bgcolor: "#303030ff" },
+          }}
+          onClick={send}
+        >
           <SendIcon />
         </IconButton>
       </Box>
     </Paper>
   );
-};
-
-export default ChatWindow;
+}
