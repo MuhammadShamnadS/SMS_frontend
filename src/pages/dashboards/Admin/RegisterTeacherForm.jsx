@@ -23,6 +23,7 @@ const TeacherRegisterForm = () => {
   const navigate = useNavigate();
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState("");
+  const [submit,handlesubmit] = useState(false);
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 
@@ -39,6 +40,9 @@ const TeacherRegisterForm = () => {
     setFormError(""); 
     setSuccess("");
 
+
+    
+
     const payload = {
       username: data.username,
       email: data.email,
@@ -53,6 +57,7 @@ const TeacherRegisterForm = () => {
     };
 
     try {
+    
       await axios.post(`/register/teacher`, payload);
       setSuccess("Teacher registered successfully!");
       reset();

@@ -12,14 +12,16 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import API from "../../api/axios";
-import makeEcho from "../../realtime/echo";
+import getEcho from "../../realtime/echo";
 
 export default function ChatWindow({ me, peerId, peerName, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
+  const [chatDisabled, setChatDisabled] = useState(false);
+  const [error, setError] = useState(null);
 
-  const echo = useMemo(() => makeEcho(), []);
+  const echo = getEcho();
 
   // 1) load history
   useEffect(() => {
@@ -49,20 +51,46 @@ const channel = echo
   }, [echo, me?.id, peerId]);
 
   // 3) send
+
 const send = async () => {
   if (!input.trim()) return;
 
-  const { data } = await API.post("/messages", {
-    receiver_id: peerId,
-    message: input.trim(),
-  });
+  try {
+    const { data } = await API.post("/messages", {
+      receiver_id: peerId,
+      message: input.trim(),
+    });
 
-  setMessages((prev) => {
-    if (prev.some((msg) => msg.id === data.id)) return prev;
-    return [...prev, data];
-  });
+    setMessages((prev) => {
+      if (prev.some((msg) => msg.id === data.id)) return prev;
+      return [...prev, data];
+    });
 
-  setInput("");
+    setInput("");
+  } catch (error) {
+    if (error.response?.status === 404) {
+      // Add a system message in chat
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `error-${Date.now()}`,
+          system: true, // flag for UI
+          message: "⚠️ This user no longer exists. You cannot send messages.",
+        },
+      ]);
+      // optionally disable further input
+      setChatDisabled(true);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `error-${Date.now()}`,
+          system: true,
+          message: "⚠️ Failed to send message. Please try again.",
+        },
+      ]);
+    }
+  }
 };
 
 
@@ -157,6 +185,32 @@ const send = async () => {
         }}
       >
         {messages.map((m) => {
+            if (m.system) {
+    return (
+      <Box
+        key={m.id}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          my: 1,
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            bgcolor: "#ffebee",
+            color: "#b71c1c",
+            px: 2,
+            py: 0.5,
+            borderRadius: 2,
+            fontStyle: "italic",
+          }}
+        >
+          {m.message}
+        </Typography>
+      </Box>
+    );
+  }
           const isMe = m.sender_id === me.id;
           const bgColor = isMe ? "#585858ff" : "white"; 
           const textColor = isMe ? "white" : "black";
@@ -236,9 +290,10 @@ key={`${m.sender_id}-${m.id}-${m.created_at}`}
         <TextField
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          fullWidth
-          placeholder="Type a message…"
-          size="small"
+            placeholder={chatDisabled ? "User not available" : "Type a message..."}
+            disabled={chatDisabled}
+            fullWidth
+            size="small"
           onKeyDown={(e) => e.key === "Enter" && send()}
           sx={{
             bgcolor: "#ffffffff",
@@ -259,6 +314,7 @@ key={`${m.sender_id}-${m.id}-${m.created_at}`}
             "&:hover": { bgcolor: "#303030ff" },
           }}
           onClick={send}
+          disabled={chatDisabled}
         >
           <SendIcon />
         </IconButton>

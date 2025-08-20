@@ -14,10 +14,11 @@ import {
   Stack,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
 import SchoolIcon from "@mui/icons-material/School";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import axios from "../../../api/axios";
+import {Controller , useForm } from "react-hook-form";
 
 const StudentRegisterForm = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const StudentRegisterForm = () => {
     handleSubmit,
     reset,
     setError,
+    control,
     formState: { errors },
   } = useForm();
 
@@ -76,6 +78,7 @@ useEffect(() => {
       await axios.post("/register/student", payload);
       setSuccess("Student registered successfully!");
       reset();
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
     const serverErrors = err.response?.data?.errors || err.response?.data;
 
@@ -145,7 +148,7 @@ useEffect(() => {
         {
             required: "Username is required",
             minLength: { value: 3, message: "Username must be at least 3 characters",},
-            maxLength: {value: 255, message: "Username must be at most 255 characters",},
+            maxLength: {value: 40, message: "Username must be at most 255 characters",},
             pattern: {value: /^[a-zA-Z0-9_]+$/, message: "Username can only contain letters, numbers, and underscores",},
           })}error={!!errors.username} helperText={errors.username?.message}/>       
 
@@ -154,26 +157,29 @@ useEffect(() => {
           { 
             required: "Email is required",
             pattern: { value: emailRegex, message: "Invalid Email format",},
+            maxLength: { value: 40, message: "Maximum 40 characters is allowed" },
           })} error={!!errors.email} helperText={errors.email?.message} />
 
-          <TextField fullWidth label="First Name" margin="normal" {...register("first_name", 
+          <TextField fullWidth label="First Name" margin="normal" inputProps={{ maxLength: 30 }} {...register("first_name", 
             { 
               required: "First name is required",
               
               minLength: { value: 2, message: "First name must be minimum 2 characters"},
-              maxLength: { value: 100, message: "First name must be atmost 100 characters" },
+              maxLength: { value: 30, message: "First name must be atmost 30 characters" },
               pattern: { value: /^[A-Za-z ]+$/, message: "Name only contains alphabets"}
              })} error={!!errors.first_name} helperText={errors.first_name?.message} />
 
           <TextField fullWidth label="Last Name" margin="normal" {...register("last_name",
           {
-            pattern: { value: /^[A-Za-z ]+$/, message: "Name only contains alphabets"}
+            pattern: { value: /^[A-Za-z ]+$/, message: "Name only contains alphabets"},
+            maxLength: { value: 20, message: "Last name must be atmost 20 characters" },
           })} error={!!errors.last_name} helperText={errors.last_name?.message} />
 
           <TextField fullWidth label="Password" type="password" margin="normal" {...register("password", 
           { 
             required: "Password is required",
             minLength: { value: 6, message:"Password must contains 6 characters"}
+            
           })} error={!!errors.password} helperText={errors.password?.message} />
 
             <TextField fullWidth label="Phone" margin="normal" {...register("phone", 
@@ -186,7 +192,8 @@ useEffect(() => {
             { 
               required: "Roll number is required" ,
                   minLength: { value: 1, message: "Please enter a roll number",},
-                  pattern: { value: /^[0-9]+$/, message: "Roll number only contains digits"}
+                  pattern: { value: /^[0-9]+$/, message: "Roll number only contains digits"},
+                  maxLength: { value: 4, message: "Roll number must be at most 4 digits" },
             })} error={!!errors.roll_number} helperText={errors.roll_number?.message} />
 
           <TextField fullWidth type="date" label="Date of Birth" InputLabelProps={{ shrink: true }} margin="normal" {...register("date_of_birth", { required: "Date of birth is required" })} error={!!errors.date_of_birth} helperText={errors.date_of_birth?.message} />
@@ -194,14 +201,32 @@ useEffect(() => {
 
           {/*Class Dropdown */}
           <FormControl fullWidth margin="normal" error={!!errors.student_class}>
-            <InputLabel>Class</InputLabel>
-            <Select defaultValue="" {...register("student_class", { required: "Class is required" })}>
-              {Array.from({ length: 12 }, (_, i) => (
-                <MenuItem key={i + 1} value={i + 1}>Class {i + 1}</MenuItem>
-              ))}
-            </Select>
-            {errors.student_class && <p style={{ color: "red", marginTop: 4 }}>{errors.student_class.message}</p>}
-          </FormControl>
+  <InputLabel>Class</InputLabel>
+  <Controller
+    name="student_class"
+    control={control}
+    defaultValue=""
+    rules={{ required: "Class is required" }}
+    render={({ field }) => (
+      <Select {...field} label="Class">
+        {Array.from({ length: 12 }, (_, i) => (
+          <MenuItem key={i + 1} value={i + 1}>
+            Class {i + 1}
+          </MenuItem>
+        ))}
+      </Select>
+    )}
+  />
+  {errors.student_class && (
+    <p style={{ color: "red", marginTop: 4 }}>
+      {errors.student_class.message}
+    </p>
+  )}
+</FormControl>
+
+
+
+
 
           {/*Status Dropdown */}
           <FormControl fullWidth margin="normal" error={!!errors.status}>
@@ -214,18 +239,30 @@ useEffect(() => {
           </FormControl>
 
           {/*Assign Teacher Dropdown */}
-          <FormControl fullWidth margin="normal" error={!!errors.assigned_teacher_id}>
-            <InputLabel>Assign Teacher</InputLabel>
-            <Select defaultValue="" {...register("assigned_teacher_id")}>
+       <FormControl fullWidth margin="normal" error={!!errors.student_class}>
+  <InputLabel>Assign Teacher</InputLabel>
+  <Controller
+    name="assigned_teacher_id"
+    control={control}
+    defaultValue=""
+    render={({ field }) => (
+      <Select {...field} label="Assign Teacher">
               <MenuItem value="">None</MenuItem>
               {teachers.map((t) => (
                 <MenuItem key={t.id} value={t.id}>
                   {t.user.first_name} {t.user.last_name} ({t.subject_specialization})
                 </MenuItem>
               ))}
-            </Select>
             {errors.assigned_teacher_id && <p style={{ color: "red", marginTop: 4 }}>{errors.assigned_teacher_id.message}</p>}
-          </FormControl>
+      </Select>
+    )}
+  />
+  {errors.student_class && (
+    <p style={{ color: "red", marginTop: 4 }}>
+      {errors.student_class.message}
+    </p>
+  )}
+</FormControl>
 
           {/* Submit */}
           <Button type="submit" variant="contained" fullWidth 

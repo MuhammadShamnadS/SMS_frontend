@@ -28,6 +28,7 @@ const EditStudentForm = () => {
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+    const [teachers, setTeachers] = useState([]);
 
   const {
     register,
@@ -36,6 +37,19 @@ const EditStudentForm = () => {
     setError: setFieldError,watch,
     formState: { errors },
   } = useForm();
+
+useEffect(() => {
+  const fetchTeachers = async () => {
+    try {
+      const res = await axios.get("/teachers");
+      setTeachers(res.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load teachers:", err);
+      setTeachers([]); 
+    }
+  };
+  fetchTeachers();
+}, []);
 
   // Fetch student details on mount
   useEffect(() => {
@@ -54,6 +68,7 @@ const EditStudentForm = () => {
           date_of_birth: s.date_of_birth,
           admission_date: s.admission_date,
           status: s.status,
+          assigned_teacher_id: s.assigned_teacher?.id || "", 
         });
         setLoading(false);
       })
@@ -165,6 +180,23 @@ const EditStudentForm = () => {
                 >
                   <MenuItem value="active">Active</MenuItem>
                   <MenuItem value="inactive">Inactive</MenuItem>
+                </TextField>
+
+                                <TextField
+                  label="Assigned Teacher"
+                  select
+                  fullWidth
+                  value={watch("assigned_teacher_id") || ""}
+                  {...register("assigned_teacher_id", { required: false })}
+                  error={!!errors.assigned_teacher}
+                  helperText={errors.assigned_teacher?.message}
+                >
+                <MenuItem value="">None</MenuItem>
+                              {teachers.map((t) => (
+                                <MenuItem key={t.id} value={t.id}>
+                                  {t.user.first_name} {t.user.last_name} ({t.subject_specialization})
+                                </MenuItem>
+                              ))}
                 </TextField>
 
               </Stack>
