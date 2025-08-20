@@ -14,7 +14,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import axios from "../../../api/axios";
-import makeEcho from "../../../realtime/echo";
+import getEcho from "../../../realtime/echo";
+import { get } from "react-hook-form";
 
 export default function ChatWindow({ onClose }) {
   const [me, setMe] = useState(null);
@@ -25,7 +26,7 @@ export default function ChatWindow({ onClose }) {
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
 
-  const echo = useMemo(() => makeEcho(), []);
+  const echo = getEcho();
 
   // Load student + teacher
   useEffect(() => {
